@@ -1,0 +1,21 @@
+name: Recent games
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency: recent-games
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/update-games.mjs
+        env:
+          LANYARD_API_KEY: ${{ secrets.LANYARD_API_KEY }}
