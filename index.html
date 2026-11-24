@@ -24,6 +24,8 @@
       --ink-50: #eef4f5;
       --teal-400: #13b5c5;
       --green-500: #4caf50;
+      --amber-500: #f0b232;
+      --red-500: #f2555a;
     }
 
     /* 2. Sémantique : rôles, utilisés en classes (bg-page, text-muted, border-line…) */
@@ -36,6 +38,8 @@
       --color-line: color-mix(in srgb, var(--ink-50) 12%, transparent);
       --color-accent: var(--teal-400);
       --color-online: var(--green-500);
+      --color-idle: var(--amber-500);
+      --color-dnd: var(--red-500);
     }
 
     /* 3. Composant : ligne de lien */
@@ -58,7 +62,7 @@
           width="104" height="104"
           class="size-26 rounded-full bg-raised object-cover ring-1 ring-line ring-offset-4 ring-offset-page"
         >
-        <span class="absolute bottom-1 right-1 size-3.5 rounded-full border-2 border-page bg-online" role="img" aria-label="Online"></span>
+        <span id="status" class="absolute bottom-1 right-1 size-3.5 rounded-full border-2 border-page bg-muted data-[status=online]:bg-online data-[status=idle]:bg-idle data-[status=dnd]:bg-dnd" role="img" hidden></span>
       </div>
 
       <h1 class="mt-8 text-3xl font-light tracking-tight">Izukend</h1>
@@ -106,7 +110,7 @@
     <!-- Jeux récents (Discord via Lanyard) : masqué tant qu'il n'y a rien à afficher.
          data-discord-id : ton ID Discord. data-ignore : applis à ne pas compter comme jeux, séparées par | -->
     <section id="games" class="mt-10" aria-labelledby="games-title" hidden
-      data-discord-id=""
+      data-discord-id="241968909035634688"
       data-ignore="Visual Studio Code|Code|Cursor|WebStorm|Figma">
       <h2 id="games-title" class="text-sm text-muted">Recently played</h2>
       <ul class="mt-3 divide-y divide-line border-y border-line"></ul>
@@ -123,9 +127,9 @@
     </section>
 
     <!-- Statut -->
-    <footer class="mt-10 flex items-center justify-center gap-2 text-sm text-muted">
-      <svg class="size-4 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5" /></svg>
-      Playing coding time
+    <footer id="activity" class="mt-10 flex items-center justify-center gap-2 text-sm text-muted">
+      <svg class="size-4 shrink-0 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5" /></svg>
+      <span data-text class="truncate">Playing coding time</span>
     </footer>
   </main>
   <script>
@@ -136,6 +140,12 @@
 
       const list = section.querySelector("ul");
       const template = section.querySelector("template");
+      const status = document.getElementById("status");
+      const activity = document.getElementById("activity");
+      const activityText = activity.querySelector("[data-text]");
+      const defaultText = activityText.textContent;
+      const statusLabels = { online: "Online", idle: "Idle", dnd: "Do not disturb", offline: "Offline" };
+      const verbs = { 0: "Playing", 1: "Streaming", 2: "Listening to", 3: "Watching", 5: "Competing in" };
       const ignored = ignore.split("|");
       const relative = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
@@ -162,18 +172,35 @@
         return li;
       };
 
+      const isGame = (a) => a.type === 0 && !ignored.includes(a.name);
+
+      // Statut + activité hors jeux (les jeux sont dans la liste). type 4 = statut personnalisé, non affiché
+      const showPresence = ({ discord_status, activities, spotify }) => {
+        status.dataset.status = discord_status;
+        status.setAttribute("aria-label", statusLabels[discord_status] ?? "Offline");
+        status.hidden = false;
+
+        const current = activities.find((a) => a.type in verbs && !isGame(a));
+        const title = current?.name === "Spotify" && spotify?.song
+          ? `${spotify.song} by ${spotify.artist}`
+          : current?.name;
+        activityText.textContent = current ? `${verbs[current.type]} ${title}` : defaultText;
+        activity.hidden = !current && activities.some(isGame);
+      };
+
       const refresh = async () => {
         try {
           const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
           if (!res.ok) return;
           const { data } = await res.json();
+          showPresence(data);
 
           let history = [];
           try { history = JSON.parse(data.kv?.recent_games ?? "[]"); } catch {}
           if (!Array.isArray(history)) history = [];
 
           const playing = data.activities
-            .filter((a) => a.type === 0 && !ignored.includes(a.name))
+            .filter(isGame)
             .map((a) => ({ name: a.name, image: history.find((g) => g.name === a.name)?.image }));
           const past = history.filter((g) => g?.name && g.last && !playing.some((p) => p.name === g.name));
 
