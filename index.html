@@ -1,268 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Izukend</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Izukend, web developer. Instagram, Twitch and GitHub.">
+  <meta name="theme-color" content="#071114">
+  <title>Izukend</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap">
+
+  <!-- Fond posé avant Tailwind : évite un flash blanc au chargement -->
+  <style>html { background: #071114 }</style>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.13"></script>
+
+  <style type="text/tailwindcss">
+    /* 1. Primitives : valeurs brutes */
     :root {
-        --primary-color: #0F969C;
-        --bg-dark: #05161A;
-        --card-bg: rgba(9, 77, 97, 0.7);
-        --text-light: #f8f9fa;
-        --accent: #13B5C5;
-        --hover-color: #0D797F;
+      --ink-950: #071114;
+      --ink-800: #122226;
+      --ink-400: #8fa6ab;
+      --ink-50: #eef4f5;
+      --teal-400: #13b5c5;
+      --green-500: #4caf50;
     }
-    
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        transition: all 0.3s ease;
+
+    /* 2. Sémantique : rôles, utilisés en classes (bg-page, text-muted, border-line…) */
+    @theme inline {
+      --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+      --color-page: var(--ink-950);
+      --color-raised: var(--ink-800);
+      --color-fg: var(--ink-50);
+      --color-muted: var(--ink-400);
+      --color-line: color-mix(in srgb, var(--ink-50) 12%, transparent);
+      --color-accent: var(--teal-400);
+      --color-online: var(--green-500);
     }
-    
-    body {
-        font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #041C24, #05161A);
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: var(--text-light);
-        position: relative;
-        overflow-x: hidden;
+
+    /* 3. Composant : ligne de lien */
+    @utility link-row {
+      @apply flex min-h-16 items-center gap-4 rounded-sm transition-colors duration-200 motion-reduce:transition-none
+        focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent;
     }
-    
-    body::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: url('https://images.unsplash.com/photo-1484417894907-623942c8ee29?q=80&w=2532&auto=format&fit=crop') no-repeat center center;
-        background-size: cover;
-        opacity: 0.1;
-        z-index: -1;
-    }
-    
-    .container {
-        padding: 2rem;
-        width: 100%;
-        max-width: 420px;
-    }
-    
-    .card {
-        background: var(--card-bg);
-        backdrop-filter: blur(10px);
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 
-                    0 1px 3px rgba(0, 0, 0, 0.1),
-                    0 0 60px rgba(15, 150, 156, 0.1);
-        overflow: hidden;
-        padding: 2.5rem 2rem;
-        text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .profile-header {
-        position: relative;
-        margin-bottom: 2rem;
-    }
-    
-    .avatar-container {
-        position: relative;
-        width: 130px;
-        height: 130px;
-        margin: 0 auto;
-    }
-    
-    .avatar {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid var(--accent);
-        padding: 4px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .status-indicator {
-        position: absolute;
-        right: 10px;
-        bottom: 10px;
-        width: 16px;
-        height: 16px;
-        background-color: #4CAF50;
-        border-radius: 50%;
-        border: 2px solid var(--card-bg);
-    }
-    
-    .username {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 1rem 0 0.3rem;
-        background: linear-gradient(45deg, var(--text-light), var(--accent));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        letter-spacing: 0.5px;
-    }
-    
-    .tagline {
-        font-size: 0.95rem;
-        font-weight: 300;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 1.5rem;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
-    
-    .divider {
-        height: 1px;
-        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
-        margin: 1.5rem 0;
-    }
-    
-    .section-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        color: var(--accent);
-        position: relative;
-        display: inline-block;
-    }
-    
-    .section-title::after {
-        content: '';
-        position: absolute;
-        width: 50%;
-        height: 2px;
-        background: var(--accent);
-        bottom: -5px;
-        left: 25%;
-    }
-    
-    .social-links {
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .social-link {
-        display: flex;
-        align-items: center;
-        padding: 0.8rem 1.5rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        text-decoration: none;
-        color: var(--text-light);
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .social-link:hover {
-        background: var(--hover-color);
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        border-color: var(--accent);
-    }
-    
-    .social-link i {
-        font-size: 1.2rem;
-        margin-right: 12px;
-        width: 24px;
-        text-align: center;
-        color: var(--accent);
-    }
-    
-    .status {
-        margin-top: 1rem;
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-    }
-    
-    .status i {
-        color: var(--accent);
-    }
-    
-    /* Animation */
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-    
-    .pulse {
-        animation: pulse 2s infinite;
-    }
-    
-    /* Mobile Responsiveness */
-    @media (max-width: 480px) {
-        .container {
-            padding: 1rem;
-        }
-        
-        .card {
-            padding: 1.5rem 1rem;
-        }
-        
-        .avatar {
-            width: 100px;
-            height: 100px;
-        }
-        
-        .username {
-            font-size: 1.6rem;
-        }
-    }
-</style>
+  </style>
 </head>
-<body>
-    <div class="container">
-        <div class="card">
-            <div class="profile-header">
-                <div class="avatar-container">
-                    <img src="https://64.media.tumblr.com/e0fb1da5e02ab1e02b951c88acce4407/70dada4db0c9cd19-9a/s540x810/5f8b14fb0f3ae42894d96154a085421d389d213a.gifv" alt="Avatar" class="avatar">
-                    <div class="status-indicator"></div>
-                </div>
-                <h1 class="username">Izukend</h1>
-                <p class="tagline">Web Developer</p>
-            </div>
-            
-            <div class="divider"></div>
-            
-            <h2 class="section-title">Connect With Me</h2>
-            <div class="social-links">
-                <a target="_blank" href="https://www.instagram.com/izukend_kuruko?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" class="social-link">
-                    <i class="fab fa-instagram"></i>
-                    <span>Instagram</span>
-                </a>
-                <a target="_blank" href="https://www.twitch.tv/izukendk" class="social-link">
-                    <i class="fab fa-twitch"></i>
-                    <span>Twitch</span>
-                </a>
-                <a target="_blank" href="https://github.com/Izukend" class="social-link">
-                    <i class="fab fa-github"></i>
-                    <span>GitHub</span>
-                </a>
-            </div>
-            
-            <div class="divider"></div>
-            
-            <div class="status">
-                <i class="fas fa-code"></i>
-                <span>Playing coding time</span>
-            </div>
-        </div>
-    </div>
+
+<body class="bg-page font-sans text-fg antialiased">
+  <main class="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 py-12">
+
+    <!-- Profil -->
+    <header class="flex flex-col items-center text-center">
+      <div class="relative">
+        <img
+          src="https://64.media.tumblr.com/e0fb1da5e02ab1e02b951c88acce4407/70dada4db0c9cd19-9a/s540x810/5f8b14fb0f3ae42894d96154a085421d389d213a.gifv"
+          alt="Izukend's avatar"
+          width="104" height="104"
+          class="size-26 rounded-full bg-raised object-cover ring-1 ring-line ring-offset-4 ring-offset-page"
+        >
+        <span class="absolute bottom-1 right-1 size-3.5 rounded-full border-2 border-page bg-online" role="img" aria-label="Online"></span>
+      </div>
+
+      <h1 class="mt-8 text-3xl font-light tracking-tight">Izukend</h1>
+      <p class="mt-2 text-sm text-muted">Web Developer</p>
+    </header>
+
+    <!-- Liens -->
+    <section class="mt-12" aria-labelledby="links-title">
+      <h2 id="links-title" class="text-sm text-muted">Connect with me</h2>
+
+      <ul class="mt-3 divide-y divide-line border-y border-line">
+        <li>
+          <a href="https://www.instagram.com/izukend_kuruko?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" class="link-row group hover:text-accent">
+            <svg class="size-5 shrink-0 text-muted transition-colors duration-200 group-hover:text-accent motion-reduce:transition-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+              <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" /><circle cx="12" cy="12" r="4.25" /><path d="M17.3 6.7h.01" stroke-width="2.25" />
+            </svg>
+            <span class="font-medium">Instagram</span>
+            <span class="ml-auto truncate text-sm text-muted">izukend_kuruko</span>
+            <svg class="size-4 shrink-0 text-muted transition duration-200 group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transform-none motion-reduce:transition-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.twitch.tv/izukendk" target="_blank" rel="noopener noreferrer" class="link-row group hover:text-accent">
+            <svg class="size-5 shrink-0 text-muted transition-colors duration-200 group-hover:text-accent motion-reduce:transition-none" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0 1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
+            </svg>
+            <span class="font-medium">Twitch</span>
+            <span class="ml-auto truncate text-sm text-muted">izukendk</span>
+            <svg class="size-4 shrink-0 text-muted transition duration-200 group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transform-none motion-reduce:transition-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/Izukend" target="_blank" rel="noopener noreferrer" class="link-row group hover:text-accent">
+            <svg class="size-5 shrink-0 text-muted transition-colors duration-200 group-hover:text-accent motion-reduce:transition-none" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+            </svg>
+            <span class="font-medium">GitHub</span>
+            <span class="ml-auto truncate text-sm text-muted">Izukend</span>
+            <svg class="size-4 shrink-0 text-muted transition duration-200 group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transform-none motion-reduce:transition-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Statut -->
+    <footer class="mt-10 flex items-center justify-center gap-2 text-sm text-muted">
+      <svg class="size-4 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5" /></svg>
+      Playing coding time
+    </footer>
+  </main>
 </body>
 </html>
